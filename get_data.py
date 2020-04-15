@@ -1,3 +1,4 @@
+from load_urls import decide_city
 from bs4 import BeautifulSoup
 import requests
 import numpy as np
@@ -122,4 +123,31 @@ def create_df(city_urls):
                     'latitude': latitude,
                     'longitude': longitude})
 
+    df['increase_price'] = np.where(df['bid_percent'].str.contains('^\-',regex=True), False, True)
+
     return df
+
+
+city_urls = decide_city('stockholm', n=5)
+df = create_df(city_urls = city_urls)
+
+
+# Import necessary packages
+import os 
+import folium
+from folium import plugins
+import rasterio as rio
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+import earthpy as et
+
+# Import data from EarthPy
+data = et.data.get_data('colorado-flood')
+
+# Set working directory to earth-analytics
+os.chdir(os.path.join(et.io.HOME, 'earth-analytics'))
+
+# Create a map using the Map() function and the coordinates for Boulder, CO
+m = folium.Map(location=[40.0150, -105.2705])
+
+# Display the map
+m
