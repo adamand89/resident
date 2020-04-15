@@ -146,8 +146,20 @@ data = et.data.get_data('colorado-flood')
 # Set working directory to earth-analytics
 os.chdir(os.path.join(et.io.HOME, 'earth-analytics'))
 
+
+
+lat = df.iloc[3]['latitude']
+lon = df.iloc[3]['longitude']
+
 # Create a map using the Map() function and the coordinates for Boulder, CO
-m = folium.Map(location=[40.0150, -105.2705])
+m = folium.Map(location=[lat, lon],
+               tiles = 'Stamen Terrain')
+
+folium.Marker(
+    location=[lat, lon], # coordinates for the marker (Earth Lab at CU Boulder)
+    popup='Earth Lab at CU Boulder', # pop-up label for the marker
+    icon=folium.Icon()
+).add_to(m)
 
 # Display the map
 m
