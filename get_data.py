@@ -123,43 +123,20 @@ def create_df(city_urls):
                     'latitude': latitude,
                     'longitude': longitude})
 
-    df['increase_price'] = np.where(df['bid_percent'].str.contains('^\-',regex=True), False, True)
+    df['increase_price'] = np.where(df['bid_percent'].str.contains(r'^\-',regex=True), False, True)
+    df['sq_m_rounded_small'] = 5*round(df['sq_m']/5)
+    df['sq_m_rounded_large'] = 10*round(df['sq_m']/10)
+    df['type'] = df['type_'].str.extract(r'(^\w+)')
+    df['area'] = df['type_'].str.extract(r'(\w+$)')
+    df['year'] = df['date'].str.extract(r'(\d{4}$)')
+    df['month'] = df['date'].str.extract(r'(\D+)')
+    df['day'] = df['date'].str.extract(r'(^\d{1,2})')
 
+    df.drop('type_', axis=1, inplace=True)
     return df
 
 
 city_urls = decide_city('stockholm', n=5)
 df = create_df(city_urls = city_urls)
 
-
-# Import necessary packages
-import os 
-import folium
-from folium import plugins
-import rasterio as rio
-from rasterio.warp import calculate_default_transform, reproject, Resampling
-import earthpy as et
-
-# Import data from EarthPy
-data = et.data.get_data('colorado-flood')
-
-# Set working directory to earth-analytics
-os.chdir(os.path.join(et.io.HOME, 'earth-analytics'))
-
-
-
-lat = df.iloc[3]['latitude']
-lon = df.iloc[3]['longitude']
-
-# Create a map using the Map() function and the coordinates for Boulder, CO
-m = folium.Map(location=[lat, lon],
-               tiles = 'Stamen Terrain')
-
-folium.Marker(
-    location=[lat, lon], # coordinates for the marker (Earth Lab at CU Boulder)
-    popup='Earth Lab at CU Boulder', # pop-up label for the marker
-    icon=folium.Icon()
-).add_to(m)
-
-# Display the map
-m
+df
