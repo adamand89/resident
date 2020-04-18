@@ -112,7 +112,7 @@ def create_df(city_urls):
             longitude.append(obj_lng)
 
 
-    df = pd.DataFrame({'adress': adress,
+    df = pd.DataFrame({'full_adress': adress,
                     'sq_m': sq_m,
                     'rooms': rooms,
                     'type_': type_,
@@ -123,20 +123,47 @@ def create_df(city_urls):
                     'latitude': latitude,
                     'longitude': longitude})
 
+    
+    # Creating new columns
+    
+    ## Square meters
+    df['sq_m_r_s'] = 5*round(df['sq_m']/5)
+    df['sq_m_r_l'] = 10*round(df['sq_m']/10)
+
+    ## Price and bidding
+    df['price_sq_th'] = 1000*round(df['price_sq']/1000)
+    df['price_ltv'] = 50000*round(df['price']/50000)
     df['increase_price'] = np.where(df['bid_percent'].str.contains(r'^\-',regex=True), False, True)
-    df['sq_m_rounded_small'] = 5*round(df['sq_m']/5)
-    df['sq_m_rounded_large'] = 10*round(df['sq_m']/10)
-    df['type'] = df['type_'].str.extract(r'(^\w+)')
-    df['area'] = df['type_'].str.extract(r'(\w+$)')
+
+    ## Dates
     df['year'] = df['date'].str.extract(r'(\d{4}$)')
     df['month'] = df['date'].str.extract(r'(\D+)')
     df['day'] = df['date'].str.extract(r'(^\d{1,2})')
+
+    ## Type and area
+    df['type'] = df['type_'].str.extract(r'(^\w+)')
+    df['area'] = df['type_'].str.extract(r'(\w+$)')
+
+    ## Strets
+    df['street_name'] = df['full_adress'].str.replace('\s(\d+$|\d+\D$)','')
+    df['street_number'] = df['full_adress'].str.replace('(\d+$|\d+\D$)','')
+
+
+    # Data cleaning
+
+    ##bid_percent
+    df['bid_percent'] = df['bid_percent'].str.replace('\n\t\t\t—','0')
+    df['bid_percent'] = df['bid_percent'].str.replace('\+|\-|\,|\%','')
+    df['bid_percent'] = df['bid_percent'].astype(float)
+    df['bid_percent'] = df['bid_percent']/10000
 
     df.drop('type_', axis=1, inplace=True)
     return df
 
 
-city_urls = decide_city('stockholm', n=5)
+city_urls = decide_city('stockholm', n=4)
 df = create_df(city_urls = city_urls)
 
-df
+
+df.head(20)
+
