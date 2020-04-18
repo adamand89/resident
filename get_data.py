@@ -145,15 +145,15 @@ def create_df(city_urls):
     df['area'] = df['type_'].str.extract(r'(\w+$)')
 
     ## Strets
-    df['street_name'] = df['full_adress'].str.replace('\s(\d+$|\d+\D$)','')
-    df['street_number'] = df['full_adress'].str.replace('(\d+$|\d+\D$)','')
+    df['street_name'] = df['full_adress'].str.replace(r'(\s(\d+$|\d+\D$))','')
+    df['street_number'] = df['full_adress'].str.replace(r'(\d+$|\d+\D$)','')
 
 
     # Data cleaning
 
     ##bid_percent
-    df['bid_percent'] = df['bid_percent'].str.replace('\n\t\t\t—','0')
-    df['bid_percent'] = df['bid_percent'].str.replace('\+|\-|\,|\%','')
+    df['bid_percent'] = df['bid_percent'].str.replace(r'(\n\t\t\t—)','0')
+    df['bid_percent'] = df['bid_percent'].str.replace(r'(\+|\-|\,|\%)','')
     df['bid_percent'] = df['bid_percent'].astype(float)
     df['bid_percent'] = df['bid_percent']/10000
 
@@ -165,5 +165,8 @@ city_urls = decide_city('stockholm', n=4)
 df = create_df(city_urls = city_urls)
 
 
-df.head(20)
+df.head(5)
 
+
+#calculating original price
+df['price']/(df['bid_percent']+1)
